@@ -17,7 +17,7 @@ app.use(fileUpload({
 }))
 // Connect to mongodb
 
-const URI = process.env.MONGODB_LOCAL;
+const URI = process.env.MONGODB_URL;
 mongoose.connect(URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
