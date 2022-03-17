@@ -4,9 +4,10 @@ const jwt = require('jsonwebtoken')
 
 
 const userCtrl = {
+
     register: async  (req, res) => {
         try{
-            const {email, name, password} = req.body;
+            const {email, name, password,role} = req.body;
 
             const user = await Users.findOne({email})
             if(user) return res.status(400).json({msg: "the email already exists"})
@@ -14,10 +15,12 @@ const userCtrl = {
             if(password.length<6)
                 res.status(400).json({msg: "password should be at least 6 characters long"})
             const passwordHash = await bcrypt.hash(password, 10)
+
             const newUser = new Users({
                 name,
                 email,
-                password: passwordHash
+                password: passwordHash,
+                role
             })
 
             //saving to mongodb
@@ -32,10 +35,9 @@ const userCtrl = {
                 path: '/user/refresh_token'
             })
 
-            res.json({
-                status: "Success",
+            res.status(200).json({
                 message: "Registered successfully",
-                data: newUser,
+                /*data: newUser,*/
                 accesstoken})
 
 
@@ -44,6 +46,7 @@ const userCtrl = {
             return  res.status(500).json({msg: e.message})
         }
     },
+
     refreshToken: (req, res) => {
         try {
             const rf_token = req.cookies.refreshtoken;
@@ -62,6 +65,7 @@ const userCtrl = {
             return res.status(500).json({msg: err.message})
         }
     },
+
     login: async (req, res) =>{
         try {
             const {email, password} = req.body;
@@ -88,6 +92,7 @@ const userCtrl = {
             return res.status(500).json({msg: err.message})
         }
     },
+
     logout: async (req, res) =>{
         try {
             res.clearCookie('refreshtoken', {path: '/user/refresh_token'})
@@ -96,6 +101,7 @@ const userCtrl = {
             return res.status(500).json({msg: err.message})
         }
     },
+
     getUser: async (req, res) =>{
         try {
             const user = await Users.findById(req.user.id).select('-password')
@@ -106,6 +112,7 @@ const userCtrl = {
             return res.status(500).json({msg: err.message})
         }
     },
+
     addCart: async (req, res) =>{
         try {
             const user = await Users.findById(req.user.id)
@@ -120,6 +127,7 @@ const userCtrl = {
             return res.status(500).json({msg: err.message})
         }
     },
+
     history: async(req, res) =>{
         try {
             const history = await Payments.find({user_id: req.user.id})
@@ -129,9 +137,11 @@ const userCtrl = {
             return res.status(500).json({msg: err.message})
         }
     }
+
 }
+
 const createAccessToken = (user) =>{
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '11m'})
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1d'})
 }
 const createRefreshToken = (user) =>{
     return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: '7d'})

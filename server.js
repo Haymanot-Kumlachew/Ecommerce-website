@@ -1,12 +1,15 @@
 require('dotenv').config()
-const express =require('express')
+const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const fileUpload = require('express-fileupload')
+const fse = require('fs-extra')
 const cookieParser = require('cookie-parser')
 const path = require('path')
 
+
 const userRouter= require('./routes/userRouter');
+
 
 const app = express()
 app.use(express.json())
@@ -29,8 +32,8 @@ mongoose.connect(URI, {
 
 app.use('/user', userRouter)
 app.use('/api', require('./routes/categoryRouter'))
-/*app.use('/api', require('./routes/upload'))
-app.use('/api', require('./routes/productRouter'))
+app.use('/api', require('./routes/upload'))
+/*app.use('/api', require('./routes/productRouter'))
 app.use('/api', require('./routes/paymentRouter'))*/
 
 const port = process.env.PORT || 3000;
